@@ -33,14 +33,16 @@
             // 
             // serviceProcessInstaller1
             // 
+            this.serviceProcessInstaller1.Account = System.ServiceProcess.ServiceAccount.LocalService;
             this.serviceProcessInstaller1.Password = null;
             this.serviceProcessInstaller1.Username = null;
             // 
             // serviceInstaller1
             // 
-            this.serviceInstaller1.Description = "User Survey automatic service";
+            this.serviceInstaller1.Description = "User Survey Service for managing surveys for staff to fill and submit";
             this.serviceInstaller1.DisplayName = "MTN Survey Service";
             this.serviceInstaller1.ServiceName = "Service1";
+            this.serviceInstaller1.StartType = System.ServiceProcess.ServiceStartMode.Automatic;
             // 
             // ProjectInstaller
             // 

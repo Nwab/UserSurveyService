@@ -10,9 +10,15 @@ namespace UserSurveyService.Utility
 {
     public class ConfigHelper
     {
-        public static string WEB_URL()
+        
+
+
+        public static string BATCHFILE_PATH
         {
-            return "WEB_URL".GetKeyValue();
+            get
+            {
+                return "BATCHFILE_PATH".GetKeyValue();
+            }
         }
 
         public static int SCHEDULE_MINS()
@@ -27,9 +33,14 @@ namespace UserSurveyService.Utility
             return "SQL_DATA_SOURCE".GetKeyValue();
         }
 
-        public static string Database()
+        public static bool UseNtwrkPath()
         {
-            return "SQL_DATABASE".GetKeyValue();
+            string ntwr_satus =  "USENTWRK".GetKeyValue();
+
+            if (ntwr_satus == "True")
+                return true;
+            else
+                return false;
         }
 
         public static string Username()
@@ -48,32 +59,12 @@ namespace UserSurveyService.Utility
             return string.Format("Data Source={0};Persist Security Info=True;Initial Catalog={1};User id={2};Password={3};", new object[]
             {
                 ConfigHelper.DataSource(),
-                ConfigHelper.Database(),
                 ConfigHelper.Username(),
                 ConfigHelper.Password()
             });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public static string GetLoggedInUserDetails()
-        {
-            string cipherText = string.Empty;
-            try
-            {
-                string filePath = AppDomain.CurrentDomain.BaseDirectory + "\\TxtQuery\\UserDetailsQry.txt";
-                cipherText = File.ReadAllText(filePath);
-            }
-            catch (Exception value)
-            {
-                ConfigHelper.log.Error<Exception>(value);
-            }
-
-            return cipherText;
-        }
-
+       
         private static Logger log = LogManager.GetCurrentClassLogger();
     }
 }

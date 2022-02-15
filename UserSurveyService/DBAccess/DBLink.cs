@@ -7,6 +7,8 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MySql.Data.MySqlClient;
+using UserQuestionnaireService.Utility;
 
 namespace UserSurveyService.DBAccess
 {
@@ -14,38 +16,48 @@ namespace UserSurveyService.DBAccess
     {
         private static NLog.Logger log = LogManager.GetCurrentClassLogger();
 
-        public static int LoggedInUserDetails(string username)
+      
+        public static string LoggedInUserStatus(StartUp startUp, string lggedInUser)
         {
-            string text = ConfigHelper.GetLoggedInUserDetails();
-            int result = 0;
-            DBLink.log.Trace(string.Format("ValidateNairaPANExists : {0}", text));
+
+           
+            string questionStatus = "";
             try
             {
-                using (SqlConnection sqlConnection = new SqlConnection())
-                {
-                    sqlConnection.ConnectionString = ConfigHelper.GetFEPConnectionStr();
-                    SqlCommand sqlCommand = new SqlCommand(text, sqlConnection);
-                    sqlCommand.CommandType = CommandType.Text;
-                    sqlCommand.Parameters.AddWithValue("@username", username);
-                    sqlCommand.Connection.Open();
-                    SqlDataReader sqlDataReader = sqlCommand.ExecuteReader();
-                    if (sqlDataReader.HasRows)
+                using (MySqlConnection mySqlConnection = new MySqlConnection())
+                { 
+                    mySqlConnection.ConnectionString = startUp.GetConnectionStr();
+                    log.Info($"{lggedInUser} : DB Connected {startUp.GetConnectionStr()}");
+                    MySqlCommand mySqlCommand = new MySqlCommand(startUp.GetSurveySetting.UserStatusQuery, mySqlConnection);
+                    mySqlCommand.CommandType = CommandType.Text;
+                    mySqlCommand.Parameters.AddWithValue("@username", lggedInUser);
+                    mySqlCommand.Connection.Open();
+                    log.Info($"DB Connected for :: {startUp.GetSurveySetting.UserStatusQuery}");
+                    MySqlDataReader mySqlDataReader = mySqlCommand.ExecuteReader();
+
+                    if (mySqlDataReader.HasRows)
                     {
-                        while (sqlDataReader.Read())
+                        log.Info($"Rows found for user");
+                        while (mySqlDataReader.Read())
                         {
-                            result = 1;
+                            questionStatus = mySqlDataReader[0].ToString();
+                            log.Info($"User: {lggedInUser} Status: {questionStatus}");
                         }
                     }
-                    sqlConnection.Close();
+                    else
+                    {
+                        log.Info($"No rows found for user");
+                    }
+                    mySqlConnection.Close();
+                    log.Info($"Close connection");
                 }
             }
             catch (Exception ex)
             {
-
                 DBLink.log.Error(string.Format("{0} +------------------------+ {1}", ex.StackTrace, ex.Message));
-                return -1;
+                return questionStatus;
             }
-            return result;
+            return questionStatus;
         }
     }
 }
